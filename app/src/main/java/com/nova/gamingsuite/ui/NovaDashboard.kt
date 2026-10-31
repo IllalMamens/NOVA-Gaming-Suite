@@ -105,7 +105,7 @@ fun NovaDashboard() {
                             fontWeight = FontWeight.Black
                         )
                         Text(
-                            "GAMING SUITE / CORE 0.1.2",
+                            "GAMING SUITE / CORE 0.1.3",
                             color = Muted,
                             fontSize = 10.sp,
                             letterSpacing = 2.sp
@@ -117,7 +117,7 @@ fun NovaDashboard() {
                         shape = RoundedCornerShape(50)
                     ) {
                         Text(
-                            "● ONLINE",
+                            "● CORE READY",
                             color = NeonCyan,
                             modifier = Modifier.padding(
                                 horizontal = 12.dp,
