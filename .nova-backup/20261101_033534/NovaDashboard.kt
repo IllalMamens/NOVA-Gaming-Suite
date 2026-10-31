@@ -1,0 +1,202 @@
+package com.nova.gamingsuite.ui
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+
+private val Background = Color(0xFF090B12)
+private val Surface = Color(0xFF151925)
+private val NeonRed = Color(0xFFFF405B)
+private val NeonCyan = Color(0xFF00D9FF)
+private val Muted = Color(0xFF9299AA)
+
+private data class NovaFeature(
+    val title: String,
+    val description: String,
+    val icon: ImageVector
+)
+
+@Composable
+fun NovaDashboard() {
+    var selected by remember { mutableStateOf("Dashboard") }
+    var message by remember { mutableStateOf("") }
+
+    val features = listOf(
+        NovaFeature("Game Space", "Game library & launcher", Icons.Default.SportsEsports),
+        NovaFeature("Game Booster", "Gaming control center", Icons.Default.Bolt),
+        NovaFeature("System Monitor", "CPU, GPU & temperature", Icons.Default.MonitorHeart),
+        NovaFeature("Graphics Engine", "Graphics information", Icons.Default.Tune),
+        NovaFeature("Gaming Profiles", "Personalized configurations", Icons.Default.SettingsSuggest),
+        NovaFeature("Root Bridge", "Root integration status", Icons.Default.Security)
+    )
+
+    MaterialTheme(
+        colorScheme = darkColorScheme(
+            background = Background,
+            surface = Surface,
+            primary = NeonRed,
+            secondary = NeonCyan
+        )
+    ) {
+        Scaffold(
+            containerColor = Background,
+            bottomBar = {
+                NavigationBar(containerColor = Surface) {
+                    val tabs = listOf(
+                        "Dashboard" to Icons.Default.Dashboard,
+                        "Games" to Icons.Default.SportsEsports,
+                        "Settings" to Icons.Default.Settings
+                    )
+                    tabs.forEach { (name, icon) ->
+                        NavigationBarItem(
+                            selected = selected == name,
+                            onClick = {
+                                selected = name
+                                message = if (name == "Dashboard") "" else "$name module is coming soon"
+                            },
+                            icon = { Icon(icon, contentDescription = name) },
+                            label = { Text(name) }
+                        )
+                    }
+                }
+            }
+        ) { padding ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Background)
+                    .padding(padding)
+                    .padding(horizontal = 20.dp)
+            ) {
+                Spacer(Modifier.height(22.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Text("N O V A", color = NeonRed, fontSize = 28.sp,
+                            fontWeight = FontWeight.Black)
+                        Text("GAMING SUITE  /  CORE 0.1",
+                            color = Muted, fontSize = 10.sp, letterSpacing = 2.sp)
+                    }
+                    Surface(
+                        color = Color(0xFF202B35),
+                        shape = RoundedCornerShape(50)
+                    ) {
+                        Text("● ONLINE", color = NeonCyan,
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                            fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                    }
+                }
+
+                Spacer(Modifier.height(26.dp))
+
+                Surface(
+                    color = Surface,
+                    shape = RoundedCornerShape(22.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(Modifier.padding(20.dp)) {
+                        Text("WELCOME BACK", color = Muted,
+                            fontSize = 11.sp, letterSpacing = 2.sp)
+                        Spacer(Modifier.height(8.dp))
+                        Text("LEVEL UP YOUR", color = Color.White,
+                            fontSize = 23.sp, fontWeight = FontWeight.Black)
+                        Text("GAMING EXPERIENCE",
+                            color = NeonRed, fontSize = 23.sp,
+                            fontWeight = FontWeight.Black)
+                        Spacer(Modifier.height(16.dp))
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.PhoneAndroid, null, tint = NeonCyan)
+                            Spacer(Modifier.width(8.dp))
+                            Text("Xiaomi Mi A2 Lite", color = Muted, fontSize = 12.sp)
+                        }
+                    }
+                }
+
+                Spacer(Modifier.height(24.dp))
+
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("NOVA MODULES", color = Color.White,
+                        fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                    Text("CORE 0.1", color = NeonCyan, fontSize = 11.sp)
+                }
+
+                Spacer(Modifier.height(12.dp))
+
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    items(features) { feature ->
+                        FeatureCard(feature) {
+                            message = "${feature.title} module is coming soon"
+                        }
+                    }
+                }
+
+                if (message.isNotEmpty()) {
+                    Text(message, color = NeonCyan, fontSize = 12.sp,
+                        modifier = Modifier.padding(vertical = 8.dp))
+                }
+
+                Text(
+                    "NOVA GAMING SUITE • BUILT FOR DAISY",
+                    color = Muted,
+                    fontSize = 9.sp,
+                    letterSpacing = 1.sp,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                        .padding(vertical = 12.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun FeatureCard(feature: NovaFeature, onClick: () -> Unit) {
+    Surface(
+        color = Surface,
+        shape = RoundedCornerShape(18.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(132.dp)
+            .clickable(onClick = onClick)
+    ) {
+        Column(
+            modifier = Modifier.padding(15.dp),
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            Icon(feature.icon, contentDescription = null,
+                tint = NeonRed, modifier = Modifier.size(28.dp))
+            Column {
+                Text(feature.title, color = Color.White,
+                    fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                Spacer(Modifier.height(4.dp))
+                Text(feature.description, color = Muted, fontSize = 10.sp)
+            }
+        }
+    }
+}
