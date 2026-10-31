@@ -3,10 +3,9 @@ package com.nova.gamingsuite.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -19,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nova.gamingsuite.device.DeviceInfoCard
+import com.nova.gamingsuite.detection.DetectionDashboardCard
 
 private val Background = Color(0xFF090B12)
 private val Surface = Color(0xFF151925)
@@ -87,6 +87,7 @@ fun NovaDashboard() {
                     .fillMaxSize()
                     .background(Background)
                     .padding(padding)
+                    .verticalScroll(rememberScrollState())
                     .padding(horizontal = 20.dp)
             ) {
                 Spacer(Modifier.height(22.dp))
@@ -104,7 +105,7 @@ fun NovaDashboard() {
                             fontWeight = FontWeight.Black
                         )
                         Text(
-                            "GAMING SUITE / CORE 0.1.1",
+                            "GAMING SUITE / CORE 0.1.2",
                             color = Muted,
                             fontSize = 10.sp,
                             letterSpacing = 2.sp
@@ -165,37 +166,42 @@ fun NovaDashboard() {
                 }
 
                 Spacer(Modifier.height(16.dp))
-
                 DeviceInfoCard()
+
+                Spacer(Modifier.height(16.dp))
+                DetectionDashboardCard()
 
                 Spacer(Modifier.height(20.dp))
 
-                Row(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        "NOVA MODULES",
-                        color = Color.White,
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text("CORE 0.1.1", color = NeonCyan, fontSize = 11.sp)
-                }
+                Text(
+                    "NOVA MODULES",
+                    color = Color.White,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold
+                )
 
                 Spacer(Modifier.height(12.dp))
 
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.weight(1f)
-                ) {
-                    items(features) { feature ->
-                        FeatureCard(feature) {
-                            message = "${feature.title} module is coming soon"
+                features.chunked(2).forEach { group ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        group.forEach { feature ->
+                            FeatureCard(
+                                feature,
+                                Modifier.weight(1f)
+                            ) {
+                                message = "${feature.title} module is coming soon"
+                            }
+                        }
+
+                        if (group.size == 1) {
+                            Spacer(Modifier.weight(1f))
                         }
                     }
+
+                    Spacer(Modifier.height(12.dp))
                 }
 
                 if (message.isNotEmpty()) {
@@ -222,12 +228,15 @@ fun NovaDashboard() {
 }
 
 @Composable
-private fun FeatureCard(feature: NovaFeature, onClick: () -> Unit) {
+private fun FeatureCard(
+    feature: NovaFeature,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
     Surface(
         color = Surface,
         shape = RoundedCornerShape(18.dp),
-        modifier = Modifier
-            .fillMaxWidth()
+        modifier = modifier
             .height(132.dp)
             .clickable(onClick = onClick)
     ) {
@@ -249,7 +258,11 @@ private fun FeatureCard(feature: NovaFeature, onClick: () -> Unit) {
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(Modifier.height(4.dp))
-                Text(feature.description, color = Muted, fontSize = 10.sp)
+                Text(
+                    feature.description,
+                    color = Muted,
+                    fontSize = 10.sp
+                )
             }
         }
     }
