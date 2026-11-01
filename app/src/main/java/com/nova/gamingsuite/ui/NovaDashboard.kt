@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nova.gamingsuite.device.DeviceInfoCard
 import com.nova.gamingsuite.monitor.GamingMonitorCard
+import com.nova.gamingsuite.games.GameSpaceCard
 import com.nova.gamingsuite.detection.DetectionDashboardCard
 import com.nova.gamingsuite.ui.RootModeCard
 
@@ -107,7 +108,7 @@ fun NovaDashboard() {
                             fontWeight = FontWeight.Black
                         )
                         Text(
-                            "GAMING SUITE / CORE 0.3.0",
+                            "GAMING SUITE / CORE 0.4.0",
                             color = Muted,
                             fontSize = 10.sp,
                             letterSpacing = 2.sp
@@ -172,6 +173,9 @@ fun NovaDashboard() {
 
                 Spacer(Modifier.height(16.dp))
                 GamingMonitorCard()
+
+                Spacer(Modifier.height(16.dp))
+                GameSpaceCard()
 
                 Spacer(Modifier.height(16.dp))
                 DetectionDashboardCard()
