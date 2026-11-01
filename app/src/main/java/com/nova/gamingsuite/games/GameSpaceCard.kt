@@ -8,8 +8,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.SportsEsports
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -32,6 +31,7 @@ fun GameSpaceCard() {
     var apps by remember { mutableStateOf<List<LauncherApp>>(emptyList()) }
     var search by remember { mutableStateOf("") }
     var message by remember { mutableStateOf("Memindai aplikasi...") }
+    var selectedApp by remember { mutableStateOf<LauncherApp?>(null) }
 
     fun loadApps() {
         val intent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
@@ -59,6 +59,15 @@ fun GameSpaceCard() {
         it.packageName.contains(search, ignoreCase = true)
     }
 
+    if (selectedApp != null) {
+        GameSettingsScreen(
+            gameName = selectedApp!!.label,
+            packageName = selectedApp!!.packageName,
+            onBack = { selectedApp = null }
+        )
+        return
+    }
+
     Surface(
         color = Color(0xFF151925),
         shape = RoundedCornerShape(20.dp),
@@ -77,18 +86,10 @@ fun GameSpaceCard() {
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Black
                     )
-                    Text(
-                        message,
-                        color = Color(0xFF9299AA),
-                        fontSize = 11.sp
-                    )
+                    Text(message, color = Color(0xFF9299AA), fontSize = 11.sp)
                 }
                 IconButton(onClick = { loadApps() }) {
-                    Icon(
-                        Icons.Default.SportsEsports,
-                        contentDescription = "Refresh apps",
-                        tint = Color(0xFF00D9FF)
-                    )
+                    Icon(Icons.Default.Refresh, "Refresh apps", tint = Color(0xFF00D9FF))
                 }
             }
 
@@ -100,15 +101,12 @@ fun GameSpaceCard() {
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 placeholder = { Text("Cari game atau aplikasi...") },
-                leadingIcon = {
-                    Icon(Icons.Default.Search, contentDescription = null)
-                },
+                leadingIcon = { Icon(Icons.Default.Search, null) },
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedTextColor = Color.White,
                     unfocusedTextColor = Color.White,
                     focusedBorderColor = Color(0xFF00D9FF),
                     unfocusedBorderColor = Color(0xFF394252),
-                    focusedLabelColor = Color(0xFF00D9FF),
                     cursorColor = Color(0xFF00D9FF)
                 )
             )
@@ -125,62 +123,57 @@ fun GameSpaceCard() {
                 )
             } else {
                 LazyColumn(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(max = 420.dp),
+                    modifier = Modifier.fillMaxWidth().heightIn(max = 480.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(filtered, key = { it.packageName }) { app ->
                         Surface(
                             color = Color(0xFF202838),
                             shape = RoundedCornerShape(13.dp),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    val launchIntent =
-                                        packageManager.getLaunchIntentForPackage(app.packageName)
-                                    if (launchIntent != null) {
-                                        try {
-                                            context.startActivity(launchIntent)
-                                            message = "Membuka ${app.label}"
-                                        } catch (_: Exception) {
-                                            message = "Gagal membuka ${app.label}"
-                                        }
-                                    } else {
-                                        message = "${app.label} tidak memiliki aktivitas launcher."
-                                    }
-                                }
+                            modifier = Modifier.fillMaxWidth()
                         ) {
                             Row(
-                                modifier = Modifier.padding(13.dp),
+                                modifier = Modifier.padding(start = 13.dp, end = 5.dp, top = 8.dp, bottom = 8.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Icon(
                                     Icons.Default.SportsEsports,
-                                    contentDescription = null,
+                                    null,
                                     tint = Color(0xFFFF405B),
                                     modifier = Modifier.size(27.dp)
                                 )
                                 Spacer(Modifier.width(12.dp))
-                                Column(Modifier.weight(1f)) {
-                                    Text(
-                                        app.label,
-                                        color = Color.White,
-                                        fontWeight = FontWeight.SemiBold,
-                                        fontSize = 13.sp
-                                    )
-                                    Text(
-                                        app.packageName,
-                                        color = Color(0xFF9299AA),
-                                        fontSize = 9.sp
-                                    )
+                                Column(
+                                    Modifier.weight(1f).clickable {
+                                        val launchIntent = packageManager.getLaunchIntentForPackage(app.packageName)
+                                        if (launchIntent != null) {
+                                            try {
+                                                context.startActivity(launchIntent)
+                                                message = "Membuka ${app.label}"
+                                            } catch (_: Exception) {
+                                                message = "Gagal membuka ${app.label}"
+                                            }
+                                        } else {
+                                            message = "${app.label} tidak memiliki aktivitas launcher."
+                                        }
+                                    }
+                                ) {
+                                    Text(app.label, color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
+                                    Text(app.packageName, color = Color(0xFF9299AA), fontSize = 9.sp)
                                 }
                                 Text(
                                     "OPEN",
                                     color = Color(0xFF00D9FF),
-                                    fontSize = 10.sp,
+                                    fontSize = 9.sp,
                                     fontWeight = FontWeight.Bold
                                 )
+                                IconButton(onClick = { selectedApp = app }) {
+                                    Icon(
+                                        Icons.Default.Settings,
+                                        contentDescription = "Pengaturan ${app.label}",
+                                        tint = Color(0xFF00D9FF)
+                                    )
+                                }
                             }
                         }
                     }
