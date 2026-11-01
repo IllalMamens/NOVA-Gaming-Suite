@@ -107,7 +107,7 @@ fun NovaDashboard() {
                             fontWeight = FontWeight.Black
                         )
                         Text(
-                            "GAMING SUITE / CORE 0.2.0",
+                            "GAMING SUITE / CORE 0.3.0",
                             color = Muted,
                             fontSize = 10.sp,
                             letterSpacing = 2.sp
