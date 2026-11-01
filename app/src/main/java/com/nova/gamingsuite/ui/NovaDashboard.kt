@@ -18,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nova.gamingsuite.device.DeviceInfoCard
+import com.nova.gamingsuite.monitor.GamingMonitorCard
 import com.nova.gamingsuite.detection.DetectionDashboardCard
 import com.nova.gamingsuite.ui.RootModeCard
 
@@ -168,6 +169,9 @@ fun NovaDashboard() {
 
                 Spacer(Modifier.height(16.dp))
                 DeviceInfoCard()
+
+                Spacer(Modifier.height(16.dp))
+                GamingMonitorCard()
 
                 Spacer(Modifier.height(16.dp))
                 DetectionDashboardCard()
