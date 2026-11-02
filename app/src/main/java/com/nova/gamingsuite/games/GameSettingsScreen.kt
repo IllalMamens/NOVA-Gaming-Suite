@@ -65,7 +65,12 @@ fun GameSettingsScreen(
     }
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
     var history by remember(packageName) {
-        mutableStateOf(prefs.getStringSet("history", emptySet())?.toList()?.sortedDescending() ?: emptyList())
+        mutableStateOf<List<String>>(
+            prefs.getStringSet("history", emptySet<String>())
+                ?.toList()
+                ?.sortedDescending()
+                ?: emptyList()
+        )
     }
     var status by remember { mutableStateOf("") }
 
@@ -91,13 +96,16 @@ fun GameSettingsScreen(
         if (sessionStart <= 0L) return
         val end = System.currentTimeMillis()
         val record = "$sessionStart|$end"
-        val updated = (prefs.getStringSet("history", emptySet()) ?: emptySet()) + record
+        val updated: Set<String> =
+            (prefs.getStringSet("history", emptySet<String>()) ?: emptySet<String>()) + record
+
         prefs.edit()
             .putStringSet("history", updated)
             .remove("active_start")
             .apply()
+
         sessionStart = 0L
-        saveHistory()
+        history = updated.toList().sortedDescending()
         status = "Sesi berhasil disimpan."
     }
 
@@ -135,15 +143,17 @@ fun GameSettingsScreen(
                 return
             }
 
-            val rows = history.mapNotNull { item ->
-                val parts = item.split("|")
-                if (parts.size != 2) null
-                else {
-                    val start = parts[0].toLongOrNull() ?: return@mapNotNull null
-                    val end = parts[1].toLongOrNull() ?: return@mapNotNull null
-                    Triple(start, end, (end - start).coerceAtLeast(0))
-                }
-            }.sortedBy { it.first }
+            val rows: List<Triple<Long, Long, Long>> =
+                history.mapNotNull { item: String ->
+                    val parts = item.split("|")
+                    if (parts.size != 2) {
+                        null
+                    } else {
+                        val start = parts[0].toLongOrNull() ?: return@mapNotNull null
+                        val end = parts[1].toLongOrNull() ?: return@mapNotNull null
+                        Triple(start, end, (end - start).coerceAtLeast(0L))
+                    }
+                }.sortedBy { row -> row.first }
 
             context.contentResolver.openOutputStream(file.uri)?.bufferedWriter()?.use { writer ->
                 writer.write("game_name,package_name,start_time,end_time,duration_seconds\n")
