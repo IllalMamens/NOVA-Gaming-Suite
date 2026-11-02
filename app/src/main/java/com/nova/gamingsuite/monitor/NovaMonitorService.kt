@@ -23,7 +23,7 @@ class NovaMonitorService : Service() {
 
     private val active = AtomicBoolean(false)
     private var worker: Thread? = null
-    private var logFile: DocumentFile? = null
+    private var logFile: DocumentFile? = null\n    private var gameLogFile: DocumentFile? = null\n    private var gameLogPackage: String? = null
 
     override fun onCreate() {
         super.onCreate()
@@ -140,6 +140,40 @@ class NovaMonitorService : Service() {
         return values.joinToString(",")
     }
 
+    private fun appendGameSample(row: String) {
+        val prefs = getSharedPreferences(PREFS, MODE_PRIVATE)
+        val packageName = prefs.getString("active_game_package", null) ?: return
+
+        try {
+            if (gameLogPackage != packageName || gameLogFile == null) {
+                val raw = prefs.getString(TREE_URI, null) ?: return
+                val tree = DocumentFile.fromTreeUri(this, Uri.parse(raw)) ?: return
+                val nova = tree.findFile("NOVA") ?: tree.createDirectory("NOVA") ?: return
+                val history = nova.findFile("GameHistory")
+                    ?: nova.createDirectory("GameHistory") ?: return
+                val safe = packageName.replace(Regex("[^A-Za-z0-9._-]"), "_")
+                val folder = history.findFile(safe) ?: history.createDirectory(safe) ?: return
+                val stamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
+                val file = folder.createFile("text/csv", "${safe}_sensors_$stamp.csv") ?: return
+
+                contentResolver.openOutputStream(file.uri, "wa")?.bufferedWriter()?.use {
+                    it.write("timestamp,cpu0_mhz,cpu1_mhz,cpu2_mhz,cpu3_mhz,cpu4_mhz,cpu5_mhz,cpu6_mhz,cpu7_mhz,cpu_temp_c,gpu_temp_c,battery_temp_c,ram_available_mb\n")
+                }
+                gameLogFile = file
+                gameLogPackage = packageName
+            }
+
+            gameLogFile?.uri?.let { uri ->
+                contentResolver.openOutputStream(uri, "wa")?.bufferedWriter()?.use {
+                    it.append(row).append('\n')
+                }
+            }
+        } catch (_: Exception) {
+            gameLogFile = null
+            gameLogPackage = null
+        }
+    }
+
     private fun monitorLoop() {
         while (active.get()) {
             try {
@@ -149,6 +183,7 @@ class NovaMonitorService : Service() {
                         it.append(row).append('\n')
                     }
                 }
+                appendGameSample(row)
                 Thread.sleep(5000)
             } catch (_: InterruptedException) {
                 break

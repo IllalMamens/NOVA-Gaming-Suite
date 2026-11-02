@@ -89,6 +89,11 @@ fun GameSettingsScreen(
         val start = System.currentTimeMillis()
         sessionStart = start
         prefs.edit().putLong("active_start", start).apply()
+        context.getSharedPreferences("nova_monitor", Context.MODE_PRIVATE)
+            .edit()
+            .putString("active_game_package", packageName)
+            .putString("active_game_name", gameName)
+            .apply()
         status = "Sesi ${gameName} dimulai."
     }
 
@@ -103,6 +108,14 @@ fun GameSettingsScreen(
             .putStringSet("history", updated)
             .remove("active_start")
             .apply()
+
+        val monitorPrefs = context.getSharedPreferences("nova_monitor", Context.MODE_PRIVATE)
+        if (monitorPrefs.getString("active_game_package", null) == packageName) {
+            monitorPrefs.edit()
+                .remove("active_game_package")
+                .remove("active_game_name")
+                .apply()
+        }
 
         sessionStart = 0L
         history = updated.toList().sortedDescending()
