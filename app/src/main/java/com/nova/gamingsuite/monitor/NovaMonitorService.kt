@@ -23,7 +23,9 @@ class NovaMonitorService : Service() {
 
     private val active = AtomicBoolean(false)
     private var worker: Thread? = null
-    private var logFile: DocumentFile? = null\n    private var gameLogFile: DocumentFile? = null\n    private var gameLogPackage: String? = null
+    private var logFile: DocumentFile? = null
+    private var gameLogFile: DocumentFile? = null
+    private var gameLogPackage: String? = null
 
     override fun onCreate() {
         super.onCreate()
